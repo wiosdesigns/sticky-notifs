@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  <title>Sticky Notifs</title>
+  <meta property="og:title" content="Sticky Notifs" />
+  <meta name="twitter:title" content="Sticky Notifs" />
+
+  <meta name="description" content="Create notifications for tasks and reminders">
+  <meta property="og:description" content="Create notifications for tasks and reminders">
+  <meta name="twitter:description" content="Create notifications for tasks and reminders">
+  
+  <meta property="og:url" content="https://sticky.wios.xyz" />
+
+  <meta property="og:image" content="/icon.png">
+  <meta property="twitter:image" content="/icon.png">
+  <meta name="twitter:image:alt" content="Background Image">
+  
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary"></meta>
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="theme-color" content="#05080a">
+  
+  <link rel="shortcut icon" href="/icon.png"/>
+  <link rel="manifest" href="manifest.json">
+  <script>
+    async function notify(){
+      if (!('Notification' in window) || !('ServiceWorkerRegistration' in window)) {
+        alert('Notifications not supported!');
+        return;
+      }
+      try {
+        if(!localStorage.notFirstTime){
+          alert("For this to work, please grant notification permission when asked");
+        }
+        const permission = await window.Notification.requestPermission();
+        reg.showNotification(document.querySelector("input[name='content']").value, {"icon":"/icon.png"});
+        localStorage.setItem("notFirstTime",true);  
+      } catch (err) {
+        alert('Notification error: ' + err);
+      }
+    }
+    
+    async function main(){
+      reg  = await navigator.serviceWorker.register('./sw.js');
+      reg.addEventListener('updatefound',function(){
+        caches.delete('the-magic-cache');
+        window.location.reload(true);
+      })  
+    }
+  </script>
+  <script src="/sw.js"></script>
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: monospace, sans-serif;
+    }
+    body{
+      font-size: 1rem;
+      padding: 0;
+      margin: 0;
+      text-align: center;
+      background: #05080a;
+      color: rgba(255,255,255,0.5);
+      display: grid;
+      height: 100vh;
+      grid-template-rows: 1fr 1fr auto;
+      grid-gap: 1rem;
+    }
+    h1{
+      align-self: center;
+    }
+    form{
+      display: grid;
+      grid-template-columns: 1fr auto;
+    }
+    input, button{
+      background: rgba(255,255,255,0.05);
+      padding: 1rem;
+      font-size: 1rem;
+      outline: none;
+      border: none;
+      color: #06f;
+    }
+    button{
+      background: #06f;
+      color: #fff;
+    }
+  </style>
+  
+</head>
+<body onload="main()">
+  <h1>Sticky Notifs</h1>
+  <h2>Type Anything.<br><br>Show it as a notification.</h2>
+  <form action="javascript:notify();">
+    <input type="text" name="content" required placeholder="Your note here">
+    <button type="submit">Show</button>
+  </form>
+    
+</body>
+</html>
+
+
